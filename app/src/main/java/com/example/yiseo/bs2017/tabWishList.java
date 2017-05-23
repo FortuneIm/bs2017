@@ -31,7 +31,7 @@ public class tabWishList extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tab_wishlist,null);
         ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, LIST_MENU) ;
-        ListView listview = (ListView) view.findViewById(R.id.listview2) ;
+        ListView listview = (ListView) view.findViewById(R.id.BookWishView) ;
         listview.setAdapter(adapter) ;
         return view;
     }

@@ -25,14 +25,12 @@
             android:layout_height="match_parent"
             android:text = "OK"/>
     </LinearLayout>
-    <ListView
 
+    <ListView
         android:id="@+id/searchResult"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="40dp"/>
-
-
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

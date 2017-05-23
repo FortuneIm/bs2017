@@ -1,8 +1,6 @@
 package com.example.yiseo.bs2017;
 
-/**
- * Created by HyoChun on 2017-05-22.
- */
+import android.graphics.Bitmap;
 
 public class Book {
     private String title;
@@ -23,6 +21,7 @@ public class Book {
         this.author = book.getAuthor();
         this.title = book.getTitle();
     }
+
     public String getTitle() {
         return title;
     }

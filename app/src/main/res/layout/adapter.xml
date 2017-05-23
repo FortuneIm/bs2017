@@ -17,14 +17,21 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/Title"
+            android:id="@+id/TitleText"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:padding="5dp"/>
 
         <TextView
-            android:id="@+id/Author"
+            android:id="@+id/AuthorText"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="5dp"/>
+
+        <TextView
+            android:id="@+id/PublisherText"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"

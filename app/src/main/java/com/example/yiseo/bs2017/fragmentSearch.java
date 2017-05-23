@@ -1,17 +1,20 @@
 package com.example.yiseo.bs2017;
 
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -33,9 +36,9 @@ import java.util.List;
 
 public class fragmentSearch extends Fragment {
 
-    static final String[] LIST_MENU = {"S1", "S2", "S3"} ;
-
     public EditText eText;
+    private ListViewAdapter adapter;
+    private ListView searchResult;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,12 +76,7 @@ public class fragmentSearch extends Fragment {
        // addItemonSpinner(inflater, container, savedInstanceState);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         final View view = inflater.inflate(R.layout.fragment_search, container, false);
-        /**
-        ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, LIST_MENU) ;
 
-        ListView listview = (ListView) view.findViewById(R.id.searchResult) ;
-        listview.setAdapter(adapter) ;
-*/
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,14 +88,12 @@ public class fragmentSearch extends Fragment {
         //------------------------------------------------------------------------------------------
 
         Button Search_btn = (Button) view.findViewById(R.id.OKBtn);
-
         Search_btn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(final View v){
-                final ListView searchResult = (ListView)getView().findViewById(R.id.searchResult);
-                Log.i("tag","test0");
-
-                Log.i("tag","test1");
+                searchResult = (ListView)getView().findViewById(R.id.searchResult);
+                adapter = new ListViewAdapter();
+                searchResult.setAdapter(adapter);
 
                 Thread thread = new Thread(new Runnable() {
                     @Override
@@ -107,12 +103,15 @@ public class fragmentSearch extends Fragment {
                         Log.i("tag","1111111111111");
                         eText = (EditText)getView().findViewById(R.id.searchTarget);
                         Log.i("tag","22222222222");
+
                         try {
                             String str = eText.getText().toString();
                             String myQuery = URLEncoder.encode(str);
                             URL url = new URL("https://openapi.naver.com/v1/search/book.xml?query="+myQuery);
                             URLConnection urlConn=url.openConnection();
 
+                            URL ImageUrl;
+                            Bitmap bmp;
                             Log.i("tag","ask3");
                             urlConn.setRequestProperty("X-Naver-Client-ID", clientID);
                             urlConn.setRequestProperty("X-Naver-Client-Secret", clientSecret);
@@ -126,11 +125,14 @@ public class fragmentSearch extends Fragment {
                                 System.out.println(msg);
                                 data += msg;
                             }
-                            List<Book> list = null;
+                            List<Book> Booklist = null;
                             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
                             XmlPullParser parser = factory.newPullParser(); //연결하는거 담고
                             parser.setInput(new StringReader(data));
                             int eventType= parser.getEventType();
+
+                            // book에 저장하는 thread 끝나면 ListViewAdapter에 추가하는 루틴을 다시 추가하자.
+
                             Book b = null;
                             while(eventType != XmlPullParser.END_DOCUMENT) {
                                 switch (eventType) {
@@ -138,14 +140,20 @@ public class fragmentSearch extends Fragment {
                                         Log.i("tag","END_DOCU");
                                         break;
                                     case XmlPullParser.START_DOCUMENT:
-                                        list = new ArrayList<Book>();
-                                        Log.i("tag","START_DOCU");
+                                        // 문서가 시작되는 경우 BOOK을 저장하는 List 형성
+                                        Booklist = new ArrayList<Book>();
+
                                         break;
+
                                     case XmlPullParser.END_TAG: {
                                         String tag = parser.getName();
                                         Log.i("tag","END_TAG");
                                         if(tag.equals("item")) {
-                                            list.add(b);
+                                            // listview에 더하기
+                                            Booklist.add(b);
+                                            // addItem(Drawable icon, String title, String author, String publisher)
+                                            adapter.addItem(b.getImag(), b.getTitle(), b.getAuthor(),
+                                                    b.getPublisher());
                                             b = null;
                                         }
                                     }
@@ -204,27 +212,7 @@ public class fragmentSearch extends Fragment {
                                 eventType = parser.next();
                             }
 
-
-                            ListView listView =(ListView)getView().findViewById(R.id.Searchimage);
-                            ListAdapter adapter = new listAdapter(view.getContext());
-                            listView.setAdapter(adapter);
-
-                            /**int count=0;
-                            while(count != list.size()) {
-                                final Book finalB = new Book(list.get(count));
-                                final int finalCount = count;
-                                ((MainActivity) getContext()).runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(finalCount == 0)
-                                            searchResult.setText("");
-                                        if (finalB.getTitle() != null)
-                                            searchResult.append(finalB.getTitle() +"\n");
-                                    }
-                                });
-                                count++;
-                            }*/
-                        } catch (MalformedURLException e) {
+                            } catch (MalformedURLException e) {
                             e.printStackTrace();
                             Log.i("tag","exception1");
                         } catch (IOException e) {
@@ -239,9 +227,10 @@ public class fragmentSearch extends Fragment {
                 Log.i("tag","test2");
                 thread.start();
                 Log.i("tag","test3");
+                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
         });
-
         return view;
     }
 
@@ -252,8 +241,6 @@ public class fragmentSearch extends Fragment {
         //you can set the title for your toolbar here for different fragments different titles
         getActivity().setTitle("Search");
     }
-
-
 
 
 }

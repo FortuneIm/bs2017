@@ -38,7 +38,7 @@ public class tabBookShelf extends Fragment {
         View view = inflater.inflate(R.layout.tab_bookshelf,null);
         ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, LIST_MENU) ;
 
-        ListView listview = (ListView) view.findViewById(R.id.listview1) ;
+        ListView listview = (ListView) view.findViewById(R.id.BookShelfView) ;
         listview.setAdapter(adapter) ;
         return view;
     }
